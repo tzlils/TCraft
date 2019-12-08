@@ -78,8 +78,9 @@ void Application::run() {
                         for(unsigned int y = 0; y < CHUNK_SIZE; y++) {
                             for(unsigned int z = 0; z < CHUNK_SIZE; z++) {
                                 if(!world->map[cx][cy][cz].map[x][y][z].active) continue;
+
                                 glm::mat4 model = glm::mat4(1.0f);
-                                model = glm::translate(model, glm::vec3(x+cx, y+cy, z+cz));
+                                model = glm::translate(model, glm::vec3(x + cx*CHUNK_SIZE, y + cy*CHUNK_SIZE, z + cz*CHUNK_SIZE));
                                 float angle = 0.0f;
                                 model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
                                 shader->setMat4("model", model);

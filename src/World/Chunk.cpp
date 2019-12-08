@@ -16,10 +16,13 @@ void Chunk::generateSphere() {
             map[x][y] = new Block[CHUNK_SIZE];
             for(unsigned int z = 0; z < CHUNK_SIZE; z++) {
                 map[x][y][z] = Block();
-                if (sqrt((float) (x-CHUNK_SIZE/2)*(x-CHUNK_SIZE/2) + (y-CHUNK_SIZE/2)*(y-CHUNK_SIZE/2) + (z-CHUNK_SIZE/2)*(z-CHUNK_SIZE/2)) <= CHUNK_SIZE/2) {
-                    map[x][y][z].active = true;
-                    map[x][y][z].id = 1;
-                }
+                map[x][y][z].active = true;
+                map[x][y][z].id = 1;
+
+                // if (sqrt((float) (x-CHUNK_SIZE/2)*(x-CHUNK_SIZE/2) + (y-CHUNK_SIZE/2)*(y-CHUNK_SIZE/2) + (z-CHUNK_SIZE/2)*(z-CHUNK_SIZE/2)) <= CHUNK_SIZE/2) {
+                //     map[x][y][z].active = true;
+                //     map[x][y][z].id = 1;
+                // }
             }
         }
     }
