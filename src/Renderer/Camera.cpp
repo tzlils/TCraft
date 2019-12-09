@@ -17,7 +17,7 @@ Camera::Camera(float fov, float width, float height) {
     yaw = 0.0f;
 
 
-    projection = glm::perspective(glm::radians(fov), (float)width/(float)height, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(fov), (float)width/(float)height, 0.1f, 500.0f);
 }
 
 void Camera::update(float delta) {

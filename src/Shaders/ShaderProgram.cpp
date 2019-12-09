@@ -43,12 +43,16 @@ void ShaderProgram::setUniform4f(const char* name, float a, float b, float c, fl
     glUniform4f(loc, a, b, c, d);
 }
 
-// void ShaderProgram::setUniformMatrix4fv(const char* name, glm::mat4 matrix) {
-//     glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, &matrix[0][0]);
-// }
+void ShaderProgram::setInt(const char* name, int value) {
+    glUniform1i(glGetUniformLocation(ID, name), value);
+}
 
 void ShaderProgram::setMat4(const std::string &name, const glm::mat4 &mat) const {
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}
+
+void ShaderProgram::setVec3(const char* name, glm::vec3 vec) {
+    glUniform3f(glGetUniformLocation(ID, name), vec.x, vec.y, vec.z);
 }
 
 std::string ShaderProgram::readfile(const char *fileName) {

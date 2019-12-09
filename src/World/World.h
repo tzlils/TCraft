@@ -1,6 +1,6 @@
 #pragma once
-#define CHUNK_SIZE 16
-#define MAP_SIZE 1
+#define CHUNK_SIZE 4
+#define MAP_SIZE 2
 #include "Chunk.h"
 
 class World {
