@@ -5,6 +5,8 @@
 #include "Textures/Texture.h"
 #include "Textures/Cubemap.h"
 #include "World/World.h"
+#include "Engine/Voxel.h"
+#include "Engine/Plane.h"
 
 #include "GLM/glm.hpp"
 #include "GLM/gtc/matrix_transform.hpp"
@@ -108,19 +110,34 @@ void Application::run() {
         "assets/textures/skybox/back.jpg"
     };
 
+    std::vector<std::string> grassfaces {
+        "assets/textures/grass_side.jpg",
+        "assets/textures/grass_side.jpg",
+        "assets/textures/grass_side.jpg",
+        "assets/textures/grass_side.jpg",
+        "assets/textures/grass_side.jpg",
+        "assets/textures/grass_side.jpg"
+    };
+
     ShaderProgram* shader = new ShaderProgram("assets/shaders/screen.vs", "assets/shaders/screen.fs");
     ShaderProgram* skybox = new ShaderProgram("assets/shaders/skybox.vs", "assets/shaders/skybox.fs");
 
-    CubeRenderer* cube = new CubeRenderer();
+    // CubeRenderer* cube = new CubeRenderer();
+    // Voxel* vox = new Voxel();
+    Plane* plane = new Plane();
     Texture* texture = new Texture("assets/textures/grass.jpg");
+
     Cubemap* skyboxCubemap = new Cubemap(faces);
+    Cubemap* grassCubemap = new Cubemap(grassfaces);
+
     World* world = new World();
     camera = new Camera(90.0f, 800.0f, 600.0f);
 
     // float timeValue = glfwGetTime();
     // float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-    float r, g, b;
-    bool changed;
+    plane->width = 20;
+    plane->height= 20;
+    plane->generateMesh();
     while(!glfwWindowShouldClose(window)) {
         float current_frame = glfwGetTime();
         delta_time = current_frame - last_frame;
@@ -135,43 +152,38 @@ void Application::run() {
 
         shader->setMat4("view", camera->view);
         shader->setMat4("projection", camera->projection);
-        if((int)glfwGetTime()%100%2) {
-            if(!changed) {
-                r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-                g = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-                b = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-                changed = true;
-            }
-        } else {
-            changed = false;
-        }
-        shader->setVec3("lightColor", glm::vec3(r, g, b));
+        shader->setVec3("lightColor", glm::vec3(1.0, 1.0, 1.0));
 
-        texture->bind();
-        cube->bind();
+        // texture->bind();
+        // grassCubemap->bind();
+        // cube->bind();
+        // plane->transform->rotation.x = M_PI_2;
+        plane->render(shader);
 
-        for(unsigned int cx = 0; cx < MAP_SIZE; cx++) {
-            for(unsigned int cy = 0; cy < MAP_SIZE; cy++) {
-                for(unsigned int cz = 0; cz < MAP_SIZE; cz++) {
-                    if(!world->map[cx][cy][cz].active) continue;
-                    for(unsigned int x = 0; x < CHUNK_SIZE; x++) {
-                        for(unsigned int y = 0; y < CHUNK_SIZE; y++) {
-                            for(unsigned int z = 0; z < CHUNK_SIZE; z++) {
-                                if(!world->map[cx][cy][cz].map[x][y][z].active) continue;
+        // vox->generateMesh();
+        // vox->render();
+        
 
-                                glm::mat4 model = glm::mat4(1.0f);
-                                model = glm::translate(model, glm::vec3(x + cx*CHUNK_SIZE, y + cy*CHUNK_SIZE, z + cz*CHUNK_SIZE));
-                                float angle = 0.0f;
-                                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-                                shader->setMat4("model", model);
+        // for(unsigned int cx = 0; cx < MAP_SIZE; cx++) {
+        //     for(unsigned int cy = 0; cy < MAP_SIZE; cy++) {
+        //         for(unsigned int cz = 0; cz < MAP_SIZE; cz++) {
+        //             if(!world->map[cx][cy][cz].active) continue;
+        //             for(unsigned int x = 0; x < CHUNK_SIZE; x++) {
+        //                 for(unsigned int y = 0; y < CHUNK_SIZE; y++) {
+        //                     for(unsigned int z = 0; z < CHUNK_SIZE; z++) {
+        //                         if(!world->map[cx][cy][cz].map[x][y][z].active) continue;
+        //                         glm::mat4 model = glm::mat4(1.0f);
+        //                         model = glm::translate(model, glm::vec3(x + cx*CHUNK_SIZE, y + cy*CHUNK_SIZE, z + cz*CHUNK_SIZE));
+        //                         shader->setMat4("model", model);
+        //                         shader->setVec3("blockColor", glm::vec3(x, y, z));
 
-                                glDrawArrays(GL_TRIANGLES, 0, 36);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        //                         glDrawArrays(GL_TRIANGLES, 0, 36);
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         glDepthFunc(GL_LEQUAL);
         skybox->bind();

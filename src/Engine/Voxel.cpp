@@ -1,14 +1,20 @@
-#include "CubeRenderer.h"
+#include "Voxel.h"
+#include "../Renderer/CubeRenderer.h"
 #include "../GLAD/glad.h"
 #include "../GLM/glm.hpp"
 
-CubeRenderer::CubeRenderer(glm::vec3 color, float scale) {
-    this->scale = scale;
+Voxel::Voxel() {
+    // renderer = new CubeRenderer(glm::vec3(1.0, 0.5, 1.0), 0.5f);
+    generateMesh();
+}
+
+void Voxel::generateMesh() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
     glBindVertexArray(VAO);
-
+    glm::vec3 color = glm::vec3(0.0, 1.0, 0.0);
+    float scale = 0.05f;
     float vertices[] = {
         -scale, -scale, -scale, color.r, color.g, color.b,
         scale, -scale, -scale,  color.r, color.g, color.b,
@@ -63,8 +69,4 @@ CubeRenderer::CubeRenderer(glm::vec3 color, float scale) {
     glEnableVertexAttribArray(1);
     
     glBindVertexArray(0); 
-}
-
-void CubeRenderer::bind() {
-    glBindVertexArray(VAO);
 }

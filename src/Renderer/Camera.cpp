@@ -20,6 +20,12 @@ Camera::Camera(float fov, float width, float height) {
     projection = glm::perspective(glm::radians(fov), (float)width/(float)height, 0.1f, 500.0f);
 }
 
+void Camera::resize(float width, float height) {
+    this->width = width;
+    this->height = height;
+    projection = glm::perspective(glm::radians(fov), (float)width/(float)height, 0.1f, 500.0f);
+}
+
 void Camera::update(float delta) {
     if (pitch > 89.0f)
         pitch = 89.0f;
