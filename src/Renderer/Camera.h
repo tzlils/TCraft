@@ -10,6 +10,7 @@ class Camera {
         glm::mat4 projection;
         glm::mat4 view;
         glm::vec3 position;
+        glm::vec3 direction;
         float yaw;
         float pitch;
     private:

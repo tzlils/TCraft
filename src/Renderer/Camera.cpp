@@ -38,5 +38,6 @@ void Camera::update(float delta) {
     front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 
     glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+    direction = position + glm::normalize(front);
     view = glm::lookAt(position, position + glm::normalize(front), cameraUp);
 }

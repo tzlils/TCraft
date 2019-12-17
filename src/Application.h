@@ -11,10 +11,13 @@ class Application {
         void run();
         float getDelta();
     private:
+        void initGL();
+        void initBullet();
         GLFWwindow* window;
         float last_frame;
         float delta_time;
         void processInput();
+        // void checkRaycasting(Camera* camera, std::vector<GameObject*> objects);
         void render();
         Camera* camera;
 };
