@@ -83,6 +83,8 @@ std::vector<std::string> grassfaces {
 };
 
 int paused;
+int pauseDelay;
+int shootDelay;
 
 Application::Application() {
     
@@ -120,7 +122,7 @@ void Application::run() {
     btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
     btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
     btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-    dynamicsWorld->setGravity(btVector3(0, -.1f, 0));
+    dynamicsWorld->setGravity(btVector3(0, -1.0f, 0));
 
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, 1920, 1080);
@@ -149,33 +151,41 @@ void Application::run() {
     camera = new Camera(90.0f, 800.0f, 600.0f);
     Gameobject* gameobjects[1000];
 
-    Gameobject* ground = new Gameobject(btVector3(0, -15, 0), 0,
+    Gameobject* ground = new Gameobject(btVector3(0, -50, 0), 0,
         new btBoxShape(btVector3(btScalar(50.), btScalar(1.), btScalar(50.))),
         glm::vec3(10, 1, 10));
 
-    // dynamicsWorld->addRigidBody(ground->rigidbody);
-    // gameobjects[0] = ground;
+    ground->scale = glm::vec3(50.0f, 2.0f, 50.0);
+    ground->color = glm::vec3(1.0f, 1.0f, 1.0f);
 
+    dynamicsWorld->addRigidBody(ground->rigidbody);
+    gameobjects[0] = ground;
 
     btTransform startTransform;
     startTransform.setIdentity();
     float mass = 1.f;
 
     int ARRAY_SIZE_X = 10;
-    int ARRAY_SIZE_Y = 10;
+    int ARRAY_SIZE_Y = 2;
     int ARRAY_SIZE_Z = 10;
     float start_x = 0 - ARRAY_SIZE_X / 2;
-    float start_y = 0;
-    float start_z = 0 - ARRAY_SIZE_Z / 2;
+    float start_y = -32;
+    float start_z = -32 - ARRAY_SIZE_Z / 2;
     for (int x = 0; x < ARRAY_SIZE_X; x++) {
         for (int y = 0; y < ARRAY_SIZE_Y; y++) {
             for (int z = 0; z < ARRAY_SIZE_Z; z++) {
-                startTransform.setOrigin(.7 * btVector3(
+                startTransform.setOrigin(1. * btVector3(
                                             btScalar(2.0 * x + start_x),
                                             btScalar(2.0 * z + start_z),
                                             btScalar(20 + 2.0 * y + start_y)));
                 
-                Gameobject* curShape = new Gameobject(startTransform, mass, new btBoxShape(btVector3(btScalar(1.), btScalar(1.), btScalar(1.))));
+                Gameobject* curShape = new Gameobject(startTransform, mass,
+                 new btBoxShape(btVector3(btScalar(1.), btScalar(1.), btScalar(1.))));
+                curShape->scale = glm::vec3(btScalar(1.), btScalar(1.), btScalar(1.));
+                float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                float g = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                float b = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                curShape->color = glm::vec3(r, g, b);
                 // btCollisionShape* colShape = new btBoxShape(btVector3(btScalar(1.), btScalar(1.), btScalar(1.)));
                 // bool isDynamic = (mass != 0.f);
                 // btVector3 localInertia(0, 0, 0);
@@ -192,12 +202,13 @@ void Application::run() {
                 // body->setSpinningFriction(0.1);
                 // body->setAnisotropicFriction(colShape->getAnisotropicRollingFrictionDirection(), btCollisionObject::CF_ANISOTROPIC_ROLLING_FRICTION);
                 dynamicsWorld->addRigidBody(curShape->rigidbody);
-                // printf("%i\n", x + ARRAY_SIZE_X * (y + ARRAY_SIZE_Z * z));
-                gameobjects[x + ARRAY_SIZE_X * (y + ARRAY_SIZE_Z * z)] = curShape;
+                // printf("%i\n", (((ARRAY_SIZE_X*ARRAY_SIZE_Y)*z)+(ARRAY_SIZE_X*y))+x);
+                gameobjects[(((ARRAY_SIZE_X*ARRAY_SIZE_Y)*z)+(ARRAY_SIZE_X*y))+x] = curShape;
             }
         }
         
     }
+
     
 
     // float timeValue = glfwGetTime();
@@ -233,7 +244,7 @@ void Application::run() {
         // groundBody->getWorldTransform().getRotation().setZ(M_PI_2);
 
         // quad->bind();
-        texture->bind();
+        // texture->bind();
         cube->bind();
         dynamicsWorld->stepSimulation(delta_time * paused);
         for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--) {
@@ -257,11 +268,10 @@ void Application::run() {
             model = glm::rotate(model, trans.getRotation().getY(), glm::vec3(0, 1, 0));
             model = glm::rotate(model, trans.getRotation().getZ(), glm::vec3(0, 0, 1));
             model = glm::translate(model, glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
-
             // if(&gameobjects[j] != &ground) {
-                shader->setVec3("blockColor", glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
+            // shader->setVec3("blockColor", glm::vec3(trans.getOrigin().getX(), trans.getOrigin().getY(), trans.getOrigin().getZ()));
             // } else {
-                // shader->setVec3("blockColor", glm::vec3(1, 0, 0));
+            shader->setVec3("blockColor", gameobjects[j]->color);
             // }
             shader->setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -347,7 +357,8 @@ void Application::processInput() {
     bool keyRotateUp = glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS;
     bool keyRotateDown = glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS;
 
-    bool keyRotatePlane = glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS;
+    bool keyTogglePhysics = glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS;
+    bool keyShoot = glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS;
 
     float rotSensitivity = 50.0f;
     float speed = 7.0f;
@@ -376,9 +387,14 @@ void Application::processInput() {
         camera->pitch += rotSensitivity * delta_time;
     }   if(keyRotateDown) {
         camera->pitch -= rotSensitivity * delta_time;
-    }   if(keyRotatePlane) {
+    }   if(keyTogglePhysics && pauseDelay <= 0) {
         paused = !paused;
+        pauseDelay = 20;
+    }   if(keyShoot && shootDelay <= 0) {
+
     }
+
+    pauseDelay--;
     
 }
 

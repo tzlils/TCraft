@@ -20,10 +20,10 @@ Gameobject::Gameobject(btVector3 origin, float mass, btCollisionShape* nshape, g
 }
 
 Gameobject::Gameobject(btTransform otransform, float mass, btCollisionShape* nshape) {
-    scale = glm::vec3(1, 1, 1);
     shape = nshape;
     transform = otransform;
-
+    // scale = glm::vec3(nshape->getLocalScaling().getX(), nshape->getLocalScaling().getY(), nshape->getLocalScaling().getZ());
+    
     //rigidbody is dynamic if and only if mass is non zero, otherwise static
     bool isDynamic = (mass != 0.f);
 
@@ -32,7 +32,7 @@ Gameobject::Gameobject(btTransform otransform, float mass, btCollisionShape* nsh
         shape->calculateLocalInertia(mass, localInertia);
     
     //using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
-    btDefaultMotionState* myMotionState = new btDefaultMotionState(transform);
+    btDefaultMotionState* myMotionState = new btDefaultMotionState(otransform);
     btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, shape, localInertia);
     rigidbody = new btRigidBody(rbInfo);
 }
